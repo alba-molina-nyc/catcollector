@@ -1,6 +1,6 @@
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Cat
 from .forms import FeedingForm
 
@@ -23,11 +23,22 @@ def cats_detail(request, pk):
     feeding_form = FeedingForm()
 
     return render(
-        request, 
+        request,
         'cats/detail.html', {
             'cat': cat,
             'feeding_form': feeding_form
         })
+
+
+def add_feeding(request, pk):
+    form = FeedingForm(request.POST)
+    print(form._errors)
+    if form.is_valid():
+        new_feeding = form.save(commit=False)
+        new_feeding.cat_id = pk
+        new_feeding.save()
+
+    return redirect('detail', pk=pk)
 
 
 class CatIndex(ListView):
