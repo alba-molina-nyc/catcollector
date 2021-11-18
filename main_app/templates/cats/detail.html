@@ -24,9 +24,12 @@
         </div>
     </div>
     <div class="col s6">
+        <form method="post">
+            {% csrf_token %}
+            {{ feeding_form.as_p }}
+            <input class="btn" type="submit" value="Add Feeding">
+        </form>
 
-    </div>
-</div>
 <table class="striped">
     <thead>
         <tr>
@@ -43,5 +46,19 @@
 
         {% endfor %}
     </tbody>
-</table>
+    </table>
+    </div>
+    </div>
+    <script>
+        const dateEl = document.getElementById('id_date');
+        const selectEl = document.getElementById('id_meal');
+        M.Datepicker.init(dateEl, {
+            form: 'yyyy-mm-dd',
+            defaultDate: new Date(),
+            setDefaultDate: true
+        });
+
+        M.FormSelect.init(selectEl);
+    </script>
+
 {% endblock %}

@@ -25,7 +25,7 @@ def cats_detail(request, pk):
     return render(
         request, 
         'cats/detail.html', {
-            'cat': cat
+            'cat': cat,
             'feeding_form': feeding_form
         })
 
