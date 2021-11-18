@@ -34,5 +34,14 @@
             <th>Meal</th>
         </tr>
     </thead>
+    <tbody>
+        {% for feeding in cat.feeding_set.all %}
+        <tr>
+            <td>{{ feeding.date }}</td>
+            <td>{{ feeding.get_meal_display }}</td>
+        </tr>
+
+        {% endfor %}
+    </tbody>
 </table>
 {% endblock %}
