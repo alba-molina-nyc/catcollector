@@ -2,7 +2,7 @@ from django.views.generic import ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.shortcuts import render
 from .models import Cat
-from main_app import models
+from .forms import FeedingForm
 
 
 def home(request):
