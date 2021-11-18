@@ -19,7 +19,15 @@ def about(request):
 
 def cats_detail(request, pk):
     cat = Cat.objects.get(id=pk)
-    return render(request, 'cats/detail.html', {'cat': cat})
+
+    feeding_form = FeedingForm()
+
+    return render(
+        request, 
+        'cats/detail.html', {
+            'cat': cat
+            'feeding_form': feeding_form
+        })
 
 
 class CatIndex(ListView):
