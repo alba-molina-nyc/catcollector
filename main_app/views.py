@@ -1,11 +1,15 @@
-from django.db.models import fields
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.shortcuts import render, redirect
-from .models import Cat, Toy
+from .models import Cat, Toy, Photo
 from .forms import FeedingForm
-from main_app import models
+
+import boto3
+import uuid
+
+S3_BASE_URL = 'https://s3-us-west-1.amazonaws.com/'
+BUCKET = 'catcollector-photo-uploads-daniel'
 
 
 def home(request):
@@ -25,11 +29,17 @@ def cats_detail(request, pk):
 
     feeding_form = FeedingForm()
 
+    toys_cat_doesnt_have = Toy.objects.exclude(
+        id__in=cat.toys.all().values_list('id'))
+
+    #  exclude objects in toys query that have pk's in this list [1, 4, 5]
+
     return render(
         request,
         'cats/detail.html', {
             'cat': cat,
-            'feeding_form': feeding_form
+            'feeding_form': feeding_form,
+            'toys': toys_cat_doesnt_have
         })
 
 
@@ -41,6 +51,30 @@ def add_feeding(request, pk):
         new_feeding.cat_id = pk
         new_feeding.save()
 
+    return redirect('detail', pk=pk)
+
+
+def assoc_toy(request, cat_id, toy_id):
+    Cat.objects.get(id=cat_id).toys.add(toy_id)
+    return redirect('detail', pk=cat_id)
+
+
+def add_photo(request, pk):
+    photo_file = request.FILES.get('photo-file')
+
+    if photo_file:
+        s3 = boto3.client('s3')
+        key = uuid.uuid4().hex[:6] + \
+            photo_file.name[photo_file.name.rfind('.'):]
+
+    try:
+        s3.upload_fileobj(photo_file, BUCKET, key)
+        url = f'{S3_BASE_URL}{BUCKET}/{key}'
+        photo = Photo(url=url, cat_id=pk)
+        photo.save()
+    except Exception as error:
+        print(f'an error occurred uploading to AWS S3')
+        print(error)
     return redirect('detail', pk=pk)
 
 
